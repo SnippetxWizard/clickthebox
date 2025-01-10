@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=800">
+  <title>Click the Box Game</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: linear-gradient(135deg, #89f7fe, #66a6ff);
+      font-family: Arial, sans-serif;
+    }
+
+    .game-container {
+      position: relative;
+      width: 400px;
+      height: 400px;
+      border: 2px solid #333;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .box {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      background: #ff4757;
+      border-radius: 5px;
+      cursor: pointer;
+      animation: moveBox 1s infinite;
+    }
+
+    @keyframes moveBox {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+      100% { transform: translateY(0); }
+    }
+
+    .scoreboard {
+      margin-top: 20px;
+      font-size: 1.5rem;
+      color: #333;
+    }
+
+    .restart-button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      color: #fff;
+      background: #ff6b81;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      display: none;
+    }
+
+    .restart-button:hover {
+      background: #ff4757;
+    }
+
+    .start-button {
+      padding: 10px 20px;
+      font-size: 1.2rem;
+      color: #fff;
+      background: #66a6ff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .start-button:hover {
+      background: #4e8ecb;
+    }
+
+    .instructions {
+      font-size: 1.2rem;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    .countdown {
+      font-size: 2rem;
+      color: #ff4757;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <div class="instructions">
+      <p>Click the moving box to score points! You have 30 seconds to score as high as you can.</p>
+    </div>
+    <button class="start-button" id="startButton">Start Game</button>
+    <div class="game-container" id="gameContainer" style="display: none;"></div>
+    <div class="scoreboard" id="scoreboard" style="display: none;">Score: 0</div>
+    <div class="countdown" id="countdown" style="display: none;"></div>
+    <button class="restart-button" id="restartButton">Restart Game</button>
+  </div>
+
+  <script>
+    const gameContainer = document.getElementById('gameContainer');
+    const scoreboard = document.getElementById('scoreboard');
+    const restartButton = document.getElementById('restartButton');
+    const startButton = document.getElementById('startButton');
+    const countdown = document.getElementById('countdown');
+
+    let score = 0;
+    let gameInterval;
+    let isGameOver = false;
+    let countdownInterval;
+    let timeLeft = 30;
+
+    function createBox() {
+      const box = document.createElement('div');
+      box.classList.add('box');
+
+      const x = Math.random() * (gameContainer.offsetWidth - 50);
+      const y = Math.random() * (gameContainer.offsetHeight - 50);
+
+      box.style.left = `${x}px`;
+      box.style.top = `${y}px`;
+
+      box.addEventListener('click', () => {
+        if (!isGameOver) {
+          score++;
+          scoreboard.textContent = `Score: ${score}`;
+          box.remove();
+          playClickSound();
+        }
+      });
+
+      gameContainer.appendChild(box);
+
+      setTimeout(() => {
+        if (box.parentElement) {
+          box.remove();
+        }
+      }, 1000);
+    }
+
+    function startGame() {
+      score = 0;
+      isGameOver = false;
+      timeLeft = 30;
+      scoreboard.textContent = `Score: ${score}`;
+      countdown.textContent = `Time Left: ${timeLeft}`;
+      gameContainer.style.display = 'block';
+      scoreboard.style.display = 'block';
+      restartButton.style.display = 'none';
+      startButton.style.display = 'none';
+      countdown.style.display = 'block';
+
+      gameInterval = setInterval(() => {
+        if (!isGameOver) {
+          createBox();
+        }
+      }, 800);
+
+      countdownInterval = setInterval(() => {
+        timeLeft--;
+        countdown.textContent = `Time Left: ${timeLeft}`;
+        if (timeLeft <= 0) {
+          endGame();
+        }
+      }, 1000);
+    }
+
+    function endGame() {
+      isGameOver = true;
+      clearInterval(gameInterval);
+      clearInterval(countdownInterval);
+      alert(`Game Over! Your final score is ${score}`);
+      restartButton.style.display = 'block';
+    }
+
+    function playClickSound() {
+      const audio = new Audio('https://www.soundjay.com/button/beep-07.wav');
+      audio.play();
+    }
+
+    startButton.addEventListener('click', startGame);
+    restartButton.addEventListener('click', startGame);
+  </script>
+</body>
+</html>
